@@ -26,6 +26,8 @@ class game{
         // 舞台
         this.stage = new createjs.Stage(this.canvas)
         createjs.Ticker.on('tick', this.stage)
+        this.lines = new createjs.Shape();
+        this.stage.addChild(this.lines);
         this.createNames()
         this.createContent()
         this.events()
@@ -130,12 +132,17 @@ class game{
             // 同行或同列
             if (a.x === b.x || a.y === b.y) {
                 clean = this.noBreakPoint(a, b)
+            } else {
+                clean = this.oneBreakPoint(a, b)
             }
             // console.log(a.x, a.y, b.x, b.y, this.singleWidth);
             // console.log(this.stage.getObjectUnderPoint(30, 30))
             if (clean) {
-                a.removeAllChildren()
-                b.removeAllChildren()
+                setTimeout(() => {
+                    this.lines.graphics.clear()
+                    a.removeAllChildren()
+                    b.removeAllChildren()
+                }, 500)
             } else {
                 me.chooseContainer.checked = false
             }
@@ -143,6 +150,7 @@ class game{
             this.chooseContainer.checked = false
         }
     }
+    // 无拐点，一条直线上
     noBreakPoint (a, b) {        
         if (a.x === b.x) {
             let flag = true
@@ -153,7 +161,7 @@ class game{
                 // x,y为左上角，应用中心点判断是否存在
                 if (this.stage.getObjectUnderPoint(x + this.singleWidth / 2, y + this.singleWidth / 2)) {
                     flag = false
-                    // return
+                    return
                 }
             }
             return flag
@@ -165,12 +173,47 @@ class game{
             for (let x = minX + this.singleWidth; x < maxX; x = x + this.singleWidth) {
                 if (this.stage.getObjectUnderPoint(x + this.singleWidth / 2, y + this.singleWidth / 2)) {
                     flag = false
-                    // return
+                    return
                 }
             }
             return flag
         } else {
             return false
         }
+    }
+    // 有一个拐点
+    oneBreakPoint (a, b) {
+        let me = this
+        // 一个拐点时，应为矩形的对角点
+        let breakPoint1 = {
+            x: a.x,
+            y: b.y
+        }, breakPoint2 = {
+            x: b.x,
+            y: a.y
+        }
+        // 首先判断拐点为空白
+        if (!this.stage.getObjectUnderPoint(breakPoint1.x + this.singleWidth / 2, breakPoint1.y + this.singleWidth / 2)){
+            this.drawLine([a, breakPoint1, b])
+            return me.noBreakPoint(a, breakPoint1) && me.noBreakPoint(b, breakPoint1)
+        } else if (!this.stage.getObjectUnderPoint(breakPoint2.x + this.singleWidth / 2, breakPoint2.y + this.singleWidth / 2)) {
+            this.drawLine([a, breakPoint2, b])
+            return me.noBreakPoint(a, breakPoint2) && me.noBreakPoint(b, breakPoint2)
+        } else {
+            return false
+        }
+    }
+
+    // 画连接线
+    drawLine (arr) {
+        setTimeout(() => {
+            arr.forEach((p, index) => {
+                if (index === 0) {
+                    this.lines.graphics.clear().beginStroke("green").mt(p.x + this.singleWidth / 2, p.y + this.singleWidth / 2)
+                } else {
+                    this.lines.graphics.lt(p.x + this.singleWidth / 2, p.y + this.singleWidth / 2)
+                }
+            })
+        }, 200)
     }
 }
