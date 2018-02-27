@@ -18,8 +18,10 @@ class game{
         createjs.Ticker.timingMode = createjs.Ticker.RAF
         this.dom = dom
         this.canvas = document.createElement('canvas')
-        this.canvas.width = this.dom.offsetWidth
-        this.canvas.height = this.dom.offsetHeight
+        this.boxWidth = Math.min(this.dom.offsetWidth, this.dom.offsetHeight)
+        this.singleWidth = (this.boxWidth - 40) / Math.max(...this.option.size)
+        this.canvas.width = this.boxWidth
+        this.canvas.height = this.boxWidth
         this.dom.appendChild(this.canvas)
         // 舞台
         this.stage = new createjs.Stage(this.canvas)
@@ -38,18 +40,18 @@ class game{
             for (let j = 0; j < this.option.size[1]; j++) {
                 // 容器
                 let container = new createjs.Container();
-                container.y = 100 + 50 * i
-                container.x = 100 + 50 * j
+                container.y = 0 + this.singleWidth * i
+                container.x = 0 + this.singleWidth * j
                 // container.mask = true
                 container.cursor = 'pointer'
                 // 方块
                 let square = new createjs.Shape();
                 square.name = 'square';
-                square.graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, 50, 50);
+                square.graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
                 // 标题
                 let title = new createjs.Text();
-                title.x = 25
-                title.y = 25
+                title.x = this.singleWidth / 2
+                title.y = this.singleWidth / 2
                 title.name = 'title';
                 title.textAlign = 'center';
                 title.textBaseline = 'middle';
@@ -80,9 +82,17 @@ class game{
     events () {
         let me = this
         this.stage.addEventListener('click', e => {
+            // 判断点击的是否为同一个
+            if (e.target.parent.checked) {
+                e.target.parent.checked = false
+                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
+                me.chooseContainer.children[1].color = '#000'
+                me.chooseContainer = null
+                return
+            }
             // 如果有选中，对比2者是否一样
             if (me.chooseContainer) {
-                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, 50, 50);
+                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
                 me.chooseContainer.children[1].color = '#000'
                 me.contrast(me.chooseContainer, e.target.parent)
                 me.chooseContainer = null
@@ -91,6 +101,9 @@ class game{
             }
             // console.log(e.target.parent.name, e.target.parent)
         })
+        // window.addEventListener('resize', e => {
+        //     console.log('a');
+        // })
     }
 
     // 选中状态标记
@@ -98,20 +111,66 @@ class game{
         let me = this
         // 取消选中
         if (me.chooseContainer) {
-            me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, 50, 50);
+            me.chooseContainer.checked = false
+            me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
             me.chooseContainer.children[1].color = '#000'
         }
         // 更改目标
         me.chooseContainer = target
-        me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.8)').beginStroke('red').rect(0, 0, 50, 50);
+        me.chooseContainer.checked = true
+        me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.8)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
         me.chooseContainer.children[1].color = 'red'
     }
 
     // 对比点击的2个是否一样
     contrast (a, b) {
+        let me = this
         if (a.name === b.name) {
-            a.removeAllChildren()
-            b.removeAllChildren()
+            let clean = false
+            // 同行或同列
+            if (a.x === b.x || a.y === b.y) {
+                clean = this.noBreakPoint(a, b)
+            }
+            // console.log(a.x, a.y, b.x, b.y, this.singleWidth);
+            // console.log(this.stage.getObjectUnderPoint(30, 30))
+            if (clean) {
+                a.removeAllChildren()
+                b.removeAllChildren()
+            } else {
+                me.chooseContainer.checked = false
+            }
+        } else {
+            this.chooseContainer.checked = false
+        }
+    }
+    noBreakPoint (a, b) {        
+        if (a.x === b.x) {
+            let flag = true
+            let x = a.x
+            let minY = Math.min(a.y, b.y),
+                maxY = Math.max(a.y, b.y)
+            for (let y = minY + this.singleWidth; y < maxY; y = y + this.singleWidth) {
+                // x,y为左上角，应用中心点判断是否存在
+                if (this.stage.getObjectUnderPoint(x + this.singleWidth / 2, y + this.singleWidth / 2)) {
+                    flag = false
+                    // return
+                }
+            }
+            return flag
+        } else if (a.y === b.y) {
+            let flag = true
+            let y = a.y
+            let minX = Math.min(a.x, b.x),
+                maxX = Math.max(a.x, b.x)
+            for (let x = minX + this.singleWidth; x < maxX; x = x + this.singleWidth) {
+                if (this.stage.getObjectUnderPoint(x + this.singleWidth / 2, y + this.singleWidth / 2)) {
+                    flag = false
+                    // return
+                }
+            }
+            return flag
+        } else {
+            return false
         }
     }
 }
