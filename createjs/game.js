@@ -383,7 +383,7 @@ class game{
         let style = {
             width: 100
         }
-        this.tweenMax = TweenMax.to(style, 2, {
+        this.tweenMax = TweenMax.to(style, 8, {
             width: 0,
             ease: 'easying',
             onUpdate: (d) => {
