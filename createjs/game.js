@@ -35,10 +35,6 @@ class game{
         this.createNames()
         this.createContent()
         this.events()
-        // this.initLayout()
-        // this.resize();
-        // this.updateLoop();
-        // this.update(this.data);
     }
 
     // 创建画块
@@ -49,12 +45,11 @@ class game{
                 let container = new createjs.Container();
                 container.y = this.singleWidth + this.singleWidth * i
                 container.x = this.singleWidth + this.singleWidth * j
-                // container.mask = true
                 container.cursor = 'pointer'
                 // 方块
                 let square = new createjs.Shape();
                 square.name = 'square';
-                square.graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
+                square.graphics.clear().setStrokeStyle(2).beginFill('rgba(0,0,0,0.1)').beginStroke('rgba(0,0,0,0.1)').rect(0, 0, this.singleWidth, this.singleWidth);
                 // 标题
                 let title = new createjs.Text();
                 title.x = this.singleWidth / 2
@@ -67,7 +62,14 @@ class game{
                 let random = Math.floor(Math.random() * this.container.names.length)
                 let text = this.container.names[random]
                 this.container.names.splice(random, 1)
-                container.name = title.text = text
+                container.name = title.text = text                
+                // 背景图
+                // let image = new createjs.Bitmap('images/' + text + '.jpg')
+                // image.set({
+                //     x: 2,
+                //     y: 2,
+                //     scale: (this.singleWidth - 4) / 200
+                // })
                 container.addChild(square, title);
                 this.container.containerArr.push(container)
                 this.stage.addChild(container);
@@ -88,41 +90,29 @@ class game{
     events () {
         let me = this
         this.stage.addEventListener('click', e => {
+            console.log(me.chooseContainer);
+            
             // 判断点击的是否为同一个
             if (e.target.parent.checked) {
                 e.target.parent.checked = false
-                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
-                me.chooseContainer.children[1].color = '#000'
+                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('rgba(0,0,0,0.1)').rect(0, 0, this.singleWidth, this.singleWidth);
+                // me.chooseContainer.children[1].color = '#000'
                 me.chooseContainer = null
                 return
             }
             // 如果有选中，对比2者是否一样
             if (me.chooseContainer) {
-                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
-                me.chooseContainer.children[1].color = '#000'
+                me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('rgba(0,0,0,0.1)').rect(0, 0, this.singleWidth, this.singleWidth);
+                // me.chooseContainer.children[1].color = '#000'
                 me.contrast(me.chooseContainer, e.target.parent)
                 me.chooseContainer = null
             } else {
-                me.checked(e.target.parent)
+                me.chooseContainer = e.target.parent
+                me.chooseContainer.checked = true
+                me.chooseContainer.children[0].graphics.clear().setStrokeStyle(2).beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
+                console.log(me.chooseContainer);
             }
-            // console.log(e.target.parent.name, e.target.parent)
         })
-    }
-
-    // 选中状态标记
-    checked (target) {
-        let me = this
-        // 取消选中
-        if (me.chooseContainer) {
-            me.chooseContainer.checked = false
-            me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
-            me.chooseContainer.children[1].color = '#000'
-        }
-        // 更改目标
-        me.chooseContainer = target
-        me.chooseContainer.checked = true
-        me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.8)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
-        me.chooseContainer.children[1].color = 'red'
     }
 
     // 对比点击的2个是否一样
@@ -148,7 +138,6 @@ class game{
                     b.removeAllChildren()
                     this.total += this.grade * 100
                     this.scoreNum.innerText = this.total
-                    me.chooseContainer = null
                     me.ifRemoveAll()
                 }, 500)
             }
