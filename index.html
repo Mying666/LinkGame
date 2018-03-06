@@ -20,16 +20,35 @@
             text-align: center;
         }
         .score{
+            padding: 5px 0;
             font-size: 20px;
+            line-height: 40px;
             text-align: center;
         }
         .score span{
             margin-right: 20px;
         }
+        .time{
+            display: inline-block;
+            vertical-align: middle;
+            height: 20px;
+            width: 200px;
+            border: 1px solid red;
+        }
+        .time i {
+            float: left;
+            width: 100%;
+            height: 100%;
+            background: red;
+        }
     </style>
 </head>
 <body>
-<p class="score">分数：<span class="scoreNum">0</span><button class="restart">重新开始</button></p>
+<div class="score">
+    分数：<span class="scoreNum">0</span>
+    <button class="restart">重新开始</button>
+    <p class="time"><i></i></p>
+</div>
 <div class="box"></div>
 <script src="createjs/easeljs-1.0.0.min.js"></script>
 <script src="createjs/TweenMax.js"></script>
@@ -37,9 +56,11 @@
 <script>
     let dom = document.querySelector('.box')
     let scoreNum = document.querySelector('.scoreNum')
+    let countdownDom = document.querySelector('.time').querySelector('i')
     let newGame = new game({
         dom,
-        scoreNum
+        scoreNum,
+        countdownDom
     })
     let restart = document.querySelector('.restart')
     restart.addEventListener('click', e => {
