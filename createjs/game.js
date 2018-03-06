@@ -1,7 +1,8 @@
 class game{
     constructor ({
         dom,
-        scoreNum
+        scoreNum,
+        countdownDom
     }) {
         if (!dom || !scoreNum) {
             console.error('请传参dom和score');
@@ -31,10 +32,14 @@ class game{
         this.stage = new createjs.Stage(this.canvas)
         createjs.Ticker.on('tick', this.stage)
         this.lines = new createjs.Shape();
+        this.gameOver = new createjs.Container();
         this.stage.addChild(this.lines);
         this.createNames()
         this.createContent()
         this.events()
+        if (countdownDom) {
+            this.countdown(countdownDom)
+        }
     }
 
     // 创建画块
@@ -90,6 +95,7 @@ class game{
     events () {
         let me = this
         this.stage.addEventListener('click', e => {
+            if (e.target.name === 'gameOver') return
             // 判断点击的是否为同一个
             if (e.target.parent.checked) {
                 e.target.parent.checked = false
@@ -129,7 +135,7 @@ class game{
             }
             // 清空处理，需延时，否则判断某点是否存在物体时与画线矛盾
             if (clean) {
-                setTimeout(() => {
+                this.timer = setTimeout(() => {
                     this.lines.graphics.clear()
                     a.removeAllChildren()
                     b.removeAllChildren()
@@ -322,6 +328,8 @@ class game{
         if (this.container.containerArr.length === 0) {
             this.grade++
             this.restart()
+        } else {
+            this.tweenMax.restart()
         }
     }
 
@@ -347,5 +355,46 @@ class game{
         this.stage.addChild(this.lines);
         this.createNames()
         this.createContent()
+        this.tweenMax.restart()
+    }
+
+    addGameover () {
+        let me = this
+        let square = new createjs.Shape();
+        let title = new createjs.Text();
+        me.gameOver = new createjs.Container();
+        me.gameOver.name = 'gameOver'
+        title.x = me.boxWidth / 2
+        title.y = me.boxWidth / 2
+        title.name = 'gameOver';
+        title.textAlign = 'center';
+        title.textBaseline = 'middle';
+        title.font = `30px Arial`;
+        title.color = 'red'
+        square.name = 'gameOver'
+        square.graphics.clear().beginFill('rgba(0,0,0,0.6)').rect(0, 0, me.boxWidth, me.boxWidth);
+        me.gameOver.alpha = 0 
+        me.gameOver.addChild(square, title);
+        me.stage.addChild(me.gameOver);
+    }
+
+    countdown (dom) {
+        let me = this
+        let style = {
+            width: 100
+        }
+        this.tweenMax = TweenMax.to(style, 2, {
+            width: 0,
+            ease: 'easying',
+            onUpdate: (d) => {
+                dom.style.width = style.width + '%'
+            },
+            onComplete () {
+                clearTimeout(me.timer)
+                me.addGameover()
+                me.gameOver.children[1].text = '分数：' + me.total + '\nGAME OVER'
+                me.gameOver.alpha = 1
+            }
+        })
     }
 }
