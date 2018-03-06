@@ -100,6 +100,7 @@ class game{
             }
             // 如果有选中，对比2者是否一样
             if (me.chooseContainer) {
+                console.log(me.chooseContainer)
                 me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('rgba(0,0,0,0.1)').rect(0, 0, this.singleWidth, this.singleWidth);
                 me.contrast(me.chooseContainer, e.target.parent)
                 me.chooseContainer = null
@@ -225,7 +226,7 @@ class game{
         }
         // a点向右遍历
         if (!flag) {
-            for (let x = a.x + this.singleWidth; x <= this.boxWidth - this.singleWidth; x += this.singleWidth) {
+            for (let x = a.x + this.singleWidth; x <= this.boxWidth; x += this.singleWidth) {
                 bp1 = {
                     x,
                     y: a.y
@@ -265,7 +266,7 @@ class game{
         }
         // a点向下遍历
         if (!flag) {
-            for (let y = a.y + this.singleWidth; y <= this.boxWidth - this.singleWidth; y += this.singleWidth) {
+            for (let y = a.y + this.singleWidth; y <= this.boxWidth; y += this.singleWidth) {
                 bp1 = {
                     x: a.x,
                     y: y
