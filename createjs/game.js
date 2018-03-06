@@ -90,8 +90,6 @@ class game{
     events () {
         let me = this
         this.stage.addEventListener('click', e => {
-            console.log(me.chooseContainer);
-            
             // 判断点击的是否为同一个
             if (e.target.parent.checked) {
                 e.target.parent.checked = false
@@ -103,14 +101,12 @@ class game{
             // 如果有选中，对比2者是否一样
             if (me.chooseContainer) {
                 me.chooseContainer.children[0].graphics.clear().beginFill('rgba(0,0,0,0.1)').beginStroke('rgba(0,0,0,0.1)').rect(0, 0, this.singleWidth, this.singleWidth);
-                // me.chooseContainer.children[1].color = '#000'
                 me.contrast(me.chooseContainer, e.target.parent)
                 me.chooseContainer = null
             } else {
                 me.chooseContainer = e.target.parent
                 me.chooseContainer.checked = true
                 me.chooseContainer.children[0].graphics.clear().setStrokeStyle(2).beginFill('rgba(0,0,0,0.1)').beginStroke('red').rect(0, 0, this.singleWidth, this.singleWidth);
-                console.log(me.chooseContainer);
             }
         })
     }
