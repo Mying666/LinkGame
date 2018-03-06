@@ -64,13 +64,13 @@ class game{
                 this.container.names.splice(random, 1)
                 container.name = title.text = text                
                 // 背景图
-                // let image = new createjs.Bitmap('images/' + text + '.jpg')
-                // image.set({
-                //     x: 2,
-                //     y: 2,
-                //     scale: (this.singleWidth - 4) / 200
-                // })
-                container.addChild(square, title);
+                let image = new createjs.Bitmap('images/' + text + '.png')
+                image.set({
+                    x: 2,
+                    y: 2,
+                    scale: (this.singleWidth - 4) / 128
+                })
+                container.addChild(square, title, image);
                 this.container.containerArr.push(container)
                 this.stage.addChild(container);
             }
